@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Reportes · Portal Cautivo </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            </div>
+            <span>PortalCautivo <span class="highlight">PPC</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/">1. Portal Usuario</a>
+            <a href="/dashboard">2. Dashboard Anunciante</a>
+            <a href="/reportes" class="active">3. Panel de Reportes</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h1 class="card-title" style="font-size: 1.5rem;">Panel de Reportes y Auditoría de Clics</h1>
+                    <p class="card-subtitle">
+                        Registro transaccional de cada clic cobrado · Ingresos Totales: <b style="color: #34d399;">${{ "%.2f"|format(ingresos_totales) }} USD</b>
+                    </p>
+                </div>
+                <form method="GET" action="/reportes" style="display: flex; gap: 10px; align-items: center;">
+                    <select name="anuncio" style="margin: 0; width: 240px;">
+                        <option value="">Todas las campañas</option>
+                        {% for ad in anuncios %}
+                        <option value="{{ ad.id_anuncio }}" {% if filtro_actual == ad.id_anuncio %}selected{% endif %}>
+                            {{ ad.id_anuncio }} · {{ ad.titulo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </form>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Transacción</th>
+                            <th>Fecha y Hora</th>
+                            <th>ID Anuncio</th>
+                            <th>Campaña</th>
+                            <th>Usuario</th>
+                            <th>Dirección IP</th>
+                            <th>Ingreso Cobrado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transacciones %}
+                        <tr>
+                            <td><span class="badge badge-blue">{{ tx.id_transaccion }}</span></td>
+                            <td style="color: var(--text-secondary);">{{ tx.timestamp }}</td>
+                            <td><b>{{ tx.id_anuncio }}</b></td>
+                            <td>{{ tx.titulo_anuncio }}</td>
+                            <td>{{ tx.id_usuario }}</td>
+                            <td><code style="background: rgba(15,23,42,0.8); padding: 3px 7px; border-radius: 6px; color: #94a3b8;">{{ tx.ip_origen }}</code></td>
+                            <td><span class="badge badge-success">+${{ "%.2f"|format(tx.monto_cpc) }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 36px;">
+                                Aún no hay clics registrados. Dirígete a <b>1. Portal Usuario</b> y haz clic en un anuncio patrocinado para ver la auditoría en tiempo real.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

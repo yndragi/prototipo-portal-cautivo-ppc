@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Cautivo Wi-Fi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            </div>
+            <span>PortalCautivo</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="active">1. Portal Usuario</a>
+            <a href="/dashboard">2. Dashboard Anunciante</a>
+            <a href="/reportes">3. Panel de Reportes</a>
+        </div>
+    </nav>
+
+    <div class="container-narrow">
+        {% if mensaje %}
+        <div class="alert alert-{{ tipo_alerta }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ mensaje }}</span>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <span class="badge badge-blue" style="margin-bottom: 10px;">Zona Wi-Fi Activa</span>
+                <h1 class="card-title" style="font-size: 1.5rem;">{{ red }}</h1>
+                <p class="card-subtitle">
+                    Conéctate iniciando sesión con tus credenciales o haz clic en un anuncio patrocinado para navegar gratis.
+                </p>
+            </div>
+
+            <!-- Anuncios visibles ANTES de autenticar -->
+            {% for ad in anuncios_login %}
+            <div class="ad-spotlight">
+                <div class="ad-top-row">
+                    <span class="ad-pill">⚡ {{ ad.etiqueta }}</span>
+                    <span class="ad-cpc-tag">CPC: ${{ "%.2f"|format(ad.cpc) }}</span>
+                </div>
+                <div class="ad-title">{{ ad.titulo }}</div>
+                <div class="ad-desc">{{ ad.descripcion }}</div>
+                <a href="/clic/{{ ad.id_anuncio }}" class="btn btn-ad">
+                    Visitar Anuncio y Conectar a Internet
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+            </div>
+            {% endfor %}
+
+            {% if not acceso %}
+            <div class="divider">O ingresa con tu cuenta</div>
+
+            <form action="/login" method="POST">
+                <label>Usuario de Red</label>
+                <input type="text" name="username" placeholder="Ej: invitado" required>
+                <label>Contraseña</label>
+                <input type="password" name="password" placeholder="Ej: 1234" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
+                    Autenticarse y Navegar
+                </button>
+            </form>
+            {% else %}
+            <div class="connected-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <span class="badge badge-success" style="margin-bottom: 6px;">● En Línea</span>
+                        <h3 style="color: #ecfdf5; font-size: 1.1rem;">Acceso a Internet Habilitado</h3>
+                        <p style="font-size: 0.88rem; color: #a7f3d0; margin-top: 2px;">
+                            Sesión activa como <b>{{ usuario }}</b>. Tráfico de salida autorizado.
+                        </p>
+                    </div>
+                    <a href="/logout" class="btn btn-danger">Desconectar</a>
+                </div>
+            </div>
+
+            <!-- Anuncios visibles DESPUÉS de autenticar -->
+            <div class="divider">Ofertas Post-Autenticación</div>
+            {% for ad in anuncios_post %}
+            <div class="ad-spotlight">
+                <div class="ad-top-row">
+                    <span class="ad-pill">★ {{ ad.etiqueta }}</span>
+                    <span class="ad-cpc-tag">CPC: ${{ "%.2f"|format(ad.cpc) }}</span>
+                </div>
+                <div class="ad-title">{{ ad.titulo }}</div>
+                <div class="ad-desc">{{ ad.descripcion }}</div>
+                <a href="/clic/{{ ad.id_anuncio }}" class="btn btn-ad">Explorar Promoción</a>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
